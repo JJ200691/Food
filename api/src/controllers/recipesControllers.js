@@ -1,12 +1,16 @@
 const axios = require('axios');
 const { Recipe, Diet } = require('../db');
 const { API_KEY } = process.env;
-const apiUrl = 'https://api.spoonacular.com/recipes/complexSearch&number=100&addRecipeInformation=true';
+const apiUrl = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&number=100&addRecipeInformation=true`
 
 
 
 const getApiData = async () => {
-    const apiGet = await axios.get(`${apiUrl}?api_key=${API_KEY}`);
+    const apiGet = await axios.get(apiUrl, {
+        headers: {
+            "accept-encoding": "*",
+        },
+    });
     const apiData = apiGet.data.results.map(el => {
         return {
             id: el.id,
@@ -17,7 +21,7 @@ const getApiData = async () => {
             steps: el.analyzedInstructions[0]?.steps.map(el => {
                 return {
                     number: el.number,
-                    steps: el.steps,
+                    steps: el.step,
                 };
             }),
         };
@@ -44,13 +48,38 @@ const getData = async () => {
     return [...apiData, ...dbData];
 };
 /*-----------------------------------------------------------------------*/
-const getByName = async (name) => {
-    const data = await getData();
-    const recipe = await data.find(el => el.name.toLowerCase() === name.toLowerCase());
+const getByName = async (data, name) => {
+    const recipe = data.filter(el => el.name.toLowerCase().includes(name.toLowerCase()));
     return recipe;
 };
 /*-----------------------------------------------------------------------*/
+const getById = async (id) => {
+    if (id.length <= 6) {
+        const idNum = parseInt(id);
+        const apiGet = await getApiData();
+        const apiData = apiGet.find(el => el.id === idNum);
+        console.log(apiData);
+        const apiInfo = {
+            id: apiData.id,
+            name: apiData.name,
+            summary: apiData.summary,
+            healthScore: apiData.healthScore,
+            image: apiData.image,
+            steps: apiData.steps,
+        };
+        return apiInfo;
+    } else {
+        const dbData = await Recipe.findByPk(id, {
+            include: {
+                model: Diet,
+                attributes: ['name'],
+                through: { attributes: [] },
+            },
+        });
+        return dbData;
+    };
+};
 
 
 
-module.exports = { getData, getByName };
+module.exports = { getData, getByName, getById };
