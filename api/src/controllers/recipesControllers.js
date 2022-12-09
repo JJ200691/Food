@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { Recipe, Diet } = require('../db');
 const { API_KEY } = process.env;
-const apiUrl = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&number=100&addRecipeInformation=true`
+const apiUrl = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&number=100&addRecipeInformation=true`;
 
 
 
@@ -58,17 +58,19 @@ const getById = async (id) => {
         const idNum = parseInt(id);
         const apiGet = await getApiData();
         const apiData = apiGet.find(el => el.id === idNum);
-        console.log(apiData);
-        const apiInfo = {
-            id: apiData.id,
-            name: apiData.name,
-            summary: apiData.summary,
-            healthScore: apiData.healthScore,
-            image: apiData.image,
-            steps: apiData.steps,
+        if (apiData) {
+            const apiInfo = {
+                id: apiData.id,
+                name: apiData.name,
+                summary: apiData.summary,
+                healthScore: apiData.healthScore,
+                image: apiData.image,
+                steps: apiData.steps,
+            };
+            return apiInfo;
         };
-        return apiInfo;
     } else {
+        console.log("EN DB");
         const dbData = await Recipe.findByPk(id, {
             include: {
                 model: Diet,
@@ -79,7 +81,22 @@ const getById = async (id) => {
         return dbData;
     };
 };
+/*-----------------------------------------------------------------------*/
+const postRecipe = async (name, summary, healthScore, steps, image, diet) => {
+    const newRecipe = await Recipe.create({
+        name,
+        summary,
+        healthScore,
+        steps,
+        image,
+    });
+    const dietDb = await Diet.findOrCreate({
+        name: diet,
+    });
+    newRecipe.addDiet(dietDb);
+    return "Recipe's created successfully!!!";
+};
 
 
 
-module.exports = { getData, getByName, getById };
+module.exports = { getData, getByName, getById, postRecipe };
