@@ -6,7 +6,7 @@ const router = Router();
 
 
 router.use('/recipes', recipesRouter);
-// router.use('/diets', dietsRuoter);
+router.use('/diets', dietsRouter);
 
 
 

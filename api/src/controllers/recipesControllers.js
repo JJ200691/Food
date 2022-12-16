@@ -70,7 +70,6 @@ const getById = async (id) => {
             return apiInfo;
         };
     } else {
-        console.log("EN DB");
         const dbData = await Recipe.findByPk(id, {
             include: {
                 model: Diet,
@@ -91,7 +90,9 @@ const postRecipe = async (name, summary, healthScore, steps, image, diet) => {
         image,
     });
     const dietDb = await Diet.findOrCreate({
-        name: diet,
+        where: {
+            name: diet,
+        }
     });
     newRecipe.addDiet(dietDb);
     return "Recipe's created successfully!!!";
