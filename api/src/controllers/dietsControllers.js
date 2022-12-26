@@ -10,7 +10,7 @@ const saveInDb = async () => {
         });
     });
     const getDiets = await Diet.findAll();
-    return getDiets.sort();
+    return getDiets;
 };
 
 

@@ -94,9 +94,20 @@ const postRecipe = async (name, summary, healthScore, steps, image, diet) => {
             name: diet,
         }
     });
-    newRecipe.addDiet(dietDb);
+    await newRecipe.addDiets(dietDb);
     return "Recipe's created successfully!!!";
 };
+// const tempDb = await Temperament.findAll({
+//     where: { name: temperament },
+// });
+// if (tempDb.length !== 0) {
+//     newDog.addTemperament(tempDb);
+// } else {
+//     const tempDbCreate = await Temperament.create({
+//         name: temperament
+//     });
+//     newDog.addTemperament(tempDbCreate);
+// };
 
 
 
